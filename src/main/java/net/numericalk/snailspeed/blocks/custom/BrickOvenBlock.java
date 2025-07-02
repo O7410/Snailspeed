@@ -139,9 +139,9 @@ public class BrickOvenBlock extends BlockWithEntity implements BlockEntityProvid
     }
 
     private boolean canLitBlueFire(Item soul, ItemStack stack, BlockState state, World world, BlockPos pos) {
-        BlockEntity be = world.getBlockEntity(pos);
-        if (be instanceof BrickOvenBlockEntity brickOvenBlockEntity) {
-            return stack.isOf(soul) && state.get(LIT).equals(2) && (brickOvenBlockEntity.getFireTime() >= 20 * 60 * 3);
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof BrickOvenBlockEntity brickOvenBlockEntity) {
+            return stack.isOf(soul) && state.get(LIT) == 2 && (brickOvenBlockEntity.getFireTime() >= 20 * 60 * 3);
         }
         return false;
     }
@@ -158,19 +158,19 @@ public class BrickOvenBlock extends BlockWithEntity implements BlockEntityProvid
         world.setBlockState(pos, state.with(LIT, 2));
         if (stack.isDamageable() && !player.isCreative()) {
             stack.damage(1, player);
-        }else if (!player.isCreative()) {
+        } else if (!player.isCreative()) {
             stack.decrement(1);
         }
         world.playSound(player, pos, soundEvent, SoundCategory.BLOCKS, 1f, 1f);
     }
 
     private boolean canLitOvenWith(Item item, ItemStack stack, BlockState state) {
-        return stack.isOf(item) && state.get(LIT).equals(1);
+        return stack.isOf(item) && state.get(LIT) == 1;
     }
 
     private void feedFire(World world, BlockPos pos, PlayerEntity player, ItemStack stack) {
-        BlockEntity be = world.getBlockEntity(pos);
-        if (be instanceof BrickOvenBlockEntity brickOvenBlockEntity) {
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof BrickOvenBlockEntity brickOvenBlockEntity) {
             if (stack.isIn(SnailItemTagsProvider.CAMPFIRE_FUEL)) {
                 brickOvenBlockEntity.calculatedAddedFireTime(SnailItemTagsProvider.CAMPFIRE_FUEL);
             } else if (stack.isIn(SnailItemTagsProvider.OVEN_FUEL)) {
@@ -182,8 +182,8 @@ public class BrickOvenBlock extends BlockWithEntity implements BlockEntityProvid
         }
     }
     private boolean canFeedFire(ItemStack stack, BlockState state, PlayerEntity player, BlockPos pos, World world) {
-        BlockEntity be = world.getBlockEntity(pos);
-        if (!(be instanceof BrickOvenBlockEntity brickOvenBlockEntity)) return false;
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (!(blockEntity instanceof BrickOvenBlockEntity brickOvenBlockEntity)) return false;
 
         return (stack.isIn(SnailItemTagsProvider.CAMPFIRE_FUEL) || stack.isIn(SnailItemTagsProvider.OVEN_FUEL))
                 && state.get(LIT) >= 2
@@ -219,12 +219,11 @@ public class BrickOvenBlock extends BlockWithEntity implements BlockEntityProvid
         return state.rotate(mirror.getRotation(state.get(FACING)));
     }
     public static int getLuminance(BlockState state) {
-        if (state.get(LIT).equals(2)) {
-            return 15;
-        } else if (state.get(LIT).equals(3)) {
-            return 10;
-        }
-        return 0;
+        return switch (state.get(LIT)) {
+            case 2 -> 15;
+            case 3 -> 10;
+            default -> 0;
+        };
     }
 
     @Override

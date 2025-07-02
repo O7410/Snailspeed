@@ -36,12 +36,12 @@ public class ResinBowlBlockEntity extends BlockEntity {
         return createNbt(registryLookup);
     }
 
-    public void tick(World world1, BlockPos pos, BlockState state) {
-        if (hasTappedLog(world1, state, pos)) {
+    public void tick(World world, BlockPos pos, BlockState state) {
+        if (hasTappedLog(world, state, pos)) {
             increaseProgress();
             if (hasProgressComplete()) {
-                world1.setBlockState(pos, state.with(ResinBowlBlock.HAS_RESIN, true));
-                decayLog(world1, pos, state);
+                world.setBlockState(pos, state.with(ResinBowlBlock.HAS_RESIN, true));
+                decayLog(world, pos, state);
                 resetProgress();
             }
         } else {
@@ -49,14 +49,14 @@ public class ResinBowlBlockEntity extends BlockEntity {
         }
     }
 
-    private static final Block[][] decayingLog = {
+    private static final Block[][] DECAYING_LOG = {
             {SnailBlocks.TAPPED_SPRUCE_LOG, SnailBlocks.DECAYED_SPRUCE_LOG},
             {SnailBlocks.TAPPED_BIRCH_LOG, SnailBlocks.DECAYED_BIRCH_LOG},
             {SnailBlocks.TAPPED_PALE_OAK_LOG, SnailBlocks.DECAYED_PALE_OAK_LOG}
     };
 
     private void decayLog(World world, BlockPos pos, BlockState state) {
-        for (Block[] block : decayingLog) {
+        for (Block[] block : DECAYING_LOG) {
             System.out.println("Decaying Log");
             Direction facing = state.get(ResinBowlBlock.FACING);
             BlockPos oppositeOffset = pos.offset(facing.getOpposite());
@@ -79,9 +79,9 @@ public class ResinBowlBlockEntity extends BlockEntity {
         progress++;
     }
 
-    private boolean hasTappedLog(World world1, BlockState state, BlockPos pos) {
+    private boolean hasTappedLog(World world, BlockState state, BlockPos pos) {
         Direction facing = state.get(ResinBowlBlock.FACING);
         BlockPos oppositeOffset = pos.offset(facing.getOpposite());
-        return world1.getBlockState(oppositeOffset).isIn(SnailBlockTagsProvider.TAPPED_LOGS);
+        return world.getBlockState(oppositeOffset).isIn(SnailBlockTagsProvider.TAPPED_LOGS);
     }
 }

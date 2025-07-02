@@ -24,16 +24,11 @@ public class BrickOvenBlockEntityRenderer implements BlockEntityRenderer<BrickOv
     public void render(BrickOvenBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
         Direction facing = entity.getCachedState().get(CampfireBlock.FACING);
-        ItemStack input1 = entity.getStack(0);
-        ItemStack input2 = entity.getStack(1);
-        ItemStack input3 = entity.getStack(2);
-        ItemStack input4 = entity.getStack(3);
-        ItemStack input5 = entity.getStack(4);
-        renderStackWith(input1, 0.75f, 0.85f, entity, matrices, itemRenderer, vertexConsumers);
-        renderStackWith(input2, 0.75f, 0.35f, entity, matrices, itemRenderer, vertexConsumers);
-        renderStackWith(input3, 0.25f, 0.85f, entity, matrices, itemRenderer, vertexConsumers);
-        renderStackWith(input4, 0.25f, 0.35f, entity, matrices, itemRenderer, vertexConsumers);
-        renderStackWith(input5, 0.5f, 0.6f, entity, matrices, itemRenderer, vertexConsumers);
+        renderStackWith(entity.getStack(0), 0.75f, 0.85f, entity, matrices, itemRenderer, vertexConsumers);
+        renderStackWith(entity.getStack(1), 0.75f, 0.35f, entity, matrices, itemRenderer, vertexConsumers);
+        renderStackWith(entity.getStack(2), 0.25f, 0.85f, entity, matrices, itemRenderer, vertexConsumers);
+        renderStackWith(entity.getStack(3), 0.25f, 0.35f, entity, matrices, itemRenderer, vertexConsumers);
+        renderStackWith(entity.getStack(4), 0.5f, 0.6f, entity, matrices, itemRenderer, vertexConsumers);
     }
 
     private void renderStackWith(ItemStack input, float x, float z, BrickOvenBlockEntity entity, MatrixStack matrices, ItemRenderer itemRenderer, VertexConsumerProvider vertexConsumers) {

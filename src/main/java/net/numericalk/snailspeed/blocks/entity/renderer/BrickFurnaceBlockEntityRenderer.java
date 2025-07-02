@@ -35,6 +35,7 @@ public class BrickFurnaceBlockEntityRenderer implements BlockEntityRenderer<Bric
         renderStackWith(input4, 0.55f, entity, matrices, itemRenderer, vertexConsumers);
         renderStackWith(input5, 0.6f, entity, matrices, itemRenderer, vertexConsumers);
     }
+
     private void renderStackWith(ItemStack input, float y, BrickFurnaceBlockEntity entity, MatrixStack matrices, ItemRenderer itemRenderer, VertexConsumerProvider vertexConsumers) {
         if (!input.isEmpty()) {
             matrices.push();

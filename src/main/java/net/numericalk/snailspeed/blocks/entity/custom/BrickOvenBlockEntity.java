@@ -60,7 +60,7 @@ public class BrickOvenBlockEntity extends BlockEntity implements ImplementedInve
     private final int[] progress = new int[5];
     private int maxProgress;
 
-    public void tick(World world1, BlockPos pos, BlockState state) {
+    public void tick(World world, BlockPos pos, BlockState state) {
         for (int i = 0; i < 5; i++) {
             if (this.getStack(i).isOf(SnailItems.AIR)) {
                 this.setStack(i, ItemStack.EMPTY);
@@ -70,38 +70,37 @@ public class BrickOvenBlockEntity extends BlockEntity implements ImplementedInve
             decreaseFireTime();
             if (fireTime <= 0) {
                 fireTime = 0;
-                setLitState(0, world1, pos, state);
+                setLitState(0, world, pos, state);
                 this.getStack(5).decrement(1);
-            } else if (fireTime <= 20 * 60 * 3 && state.get(BrickOvenBlock.LIT).equals(3)) {
-                setLitState(2, world1, pos, state);
+            } else if (fireTime <= 20 * 60 * 3 && state.get(BrickOvenBlock.LIT) == 3) {
+                setLitState(2, world, pos, state);
             }
         } else if (hasFuel()) {
-            displayHasFuel(world1, pos, state);
+            displayHasFuel(world, pos, state);
             resetFireTime();
         }
         else {
             resetFireTime();
         }
 
-        if (state.get(BrickOvenBlock.LIT).equals(2)) {
+        if (state.get(BrickOvenBlock.LIT) == 2) {
             maxProgress = 20 * 60 * 2;
-            cookItem(state, world1, pos, maxProgress);
-        } else if (state.get(BrickOvenBlock.LIT).equals(3)) {
+            cookItem(state, world, pos, maxProgress);
+        } else if (state.get(BrickOvenBlock.LIT) == 3) {
             maxProgress = 20 * 60;
-            smeltItem(state, world1, pos, maxProgress);
+            smeltItem(state, world, pos, maxProgress);
         }
     }
 
     private void spawnSmokeParticle(World world, BlockPos pos, BlockState state) {
-        if (world instanceof ServerWorld serverWorld) {
-            serverWorld.spawnParticles(
-                    ParticleTypes.SMOKE,
-                    pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
-                    1,
-                    0, 0.2, 0,
-                    0.01
-            );
-        }
+        if (!(world instanceof ServerWorld serverWorld)) return;
+        serverWorld.spawnParticles(
+                ParticleTypes.SMOKE,
+                pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
+                1,
+                0, 0.2, 0,
+                0.01
+        );
     }
 
     private Item getCookedItem(Item raw) {
@@ -118,7 +117,7 @@ public class BrickOvenBlockEntity extends BlockEntity implements ImplementedInve
         return null;
     }
 
-    private void smeltItem(BlockState state, World world1, BlockPos pos, int maxProgress) {
+    private void smeltItem(BlockState state, World world, BlockPos pos, int maxProgress) {
         for (int i = 0; i < 5; i++) {
             ItemStack stack = getStack(i);
             if (stack.isEmpty()) continue;
@@ -126,14 +125,14 @@ public class BrickOvenBlockEntity extends BlockEntity implements ImplementedInve
             Item smelted = getSmeltedItem(stack.getItem());
             if (smelted != null) {
                 progress[i]++;
-                spawnSmokeParticle(world1, pos, state);
+                spawnSmokeParticle(world, pos, state);
                 if (progress[i] >= maxProgress) {
                     setStack(i, new ItemStack(smelted));
                     progress[i] = 0;
 
-                    if (!world1.isClient) {
+                    if (!world.isClient) {
                         markDirty();
-                        world1.updateListeners(pos, getCachedState(), getCachedState(), 3);
+                        world.updateListeners(pos, getCachedState(), getCachedState(), 3);
                     }
                 }
             } else {
@@ -142,7 +141,7 @@ public class BrickOvenBlockEntity extends BlockEntity implements ImplementedInve
         }
     }
 
-    private void cookItem(BlockState state, World world1, BlockPos pos, int maxProgress) {
+    private void cookItem(BlockState state, World world, BlockPos pos, int maxProgress) {
         for (int i = 0; i < 5; i++) {
             ItemStack stack = getStack(i);
             if (stack.isEmpty()) continue;
@@ -150,14 +149,14 @@ public class BrickOvenBlockEntity extends BlockEntity implements ImplementedInve
             Item cooked = getCookedItem(stack.getItem());
             if (cooked != null) {
                 progress[i]++;
-                spawnSmokeParticle(world1, pos, state);
+                spawnSmokeParticle(world, pos, state);
                 if (progress[i] >= maxProgress) {
                     setStack(i, new ItemStack(cooked));
                     progress[i] = 0;
 
-                    if (!world1.isClient) {
+                    if (!world.isClient) {
                         markDirty();
-                        world1.updateListeners(pos, getCachedState(), getCachedState(), 3);
+                        world.updateListeners(pos, getCachedState(), getCachedState(), 3);
                     }
                 }
             } else {
@@ -166,12 +165,12 @@ public class BrickOvenBlockEntity extends BlockEntity implements ImplementedInve
         }
     }
 
-    private void setLitState(int lit, World world1, BlockPos pos, BlockState state) {
-        world1.setBlockState(pos, state.with(BrickOvenBlock.LIT, lit));
+    private void setLitState(int lit, World world, BlockPos pos, BlockState state) {
+        world.setBlockState(pos, state.with(BrickOvenBlock.LIT, lit));
     }
 
-    private void displayHasFuel(World world1, BlockPos pos, BlockState state) {
-        world1.setBlockState(pos, state.with(BrickOvenBlock.LIT, 1));
+    private void displayHasFuel(World world, BlockPos pos, BlockState state) {
+        world.setBlockState(pos, state.with(BrickOvenBlock.LIT, 1));
     }
 
     private void decreaseFireTime() {

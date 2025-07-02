@@ -13,7 +13,7 @@ import net.numericalk.snailspeed.screen.SnailScreenHandlers;
 
 public class SmallBarrelScreenHandler extends ScreenHandler {
     private final Inventory inv;
-    private final SmallBarrelBlockEntity be;
+    private final SmallBarrelBlockEntity blockEntity;
 
 
     public SmallBarrelScreenHandler(int syncId, PlayerInventory inventory, BlockPos pos) {
@@ -23,7 +23,7 @@ public class SmallBarrelScreenHandler extends ScreenHandler {
     public SmallBarrelScreenHandler(int syncId, PlayerInventory inventory, BlockEntity blockEntity) {
         super(SnailScreenHandlers.SMALL_BARREL_SCREEN_HANDLER, syncId);
         this.inv = ((Inventory) blockEntity);
-        this.be = ((SmallBarrelBlockEntity) blockEntity);
+        this.blockEntity = ((SmallBarrelBlockEntity) blockEntity);
 
         this.addSlot(new Slot(this.inv, 0, 44, 20));
         this.addSlot(new Slot(this.inv, 1, 62, 20));

@@ -12,6 +12,11 @@ public class DamagedLogBlock extends PillarBlock {
     private static final VoxelShape SHAPE_Y = Block.createCuboidShape(5, 0, 5, 11, 16, 11);
     private static final VoxelShape SHAPE_X = Block.createCuboidShape(0, 5, 5, 16, 11, 11);
     private static final VoxelShape SHAPE_Z = Block.createCuboidShape(5, 5, 0, 11, 11, 16);
+
+    public DamagedLogBlock(Settings settings) {
+        super(settings);
+    }
+
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         return switch (state.get(AXIS)) {
@@ -19,8 +24,5 @@ public class DamagedLogBlock extends PillarBlock {
             case Y -> SHAPE_Y;
             case Z -> SHAPE_Z;
         };
-    }
-    public DamagedLogBlock(Settings settings) {
-        super(settings);
     }
 }

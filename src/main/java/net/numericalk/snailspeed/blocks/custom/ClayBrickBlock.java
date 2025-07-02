@@ -24,7 +24,7 @@ import net.numericalk.snailspeed.blocks.entity.SnailBlockEntities;
 import net.numericalk.snailspeed.blocks.entity.custom.ClayBrickBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
-public class ClayBrickBlock extends BlockWithEntity implements BlockEntityProvider{
+public class ClayBrickBlock extends BlockWithEntity implements BlockEntityProvider {
     public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
     private static final VoxelShape SHAPE_Z = Block.createCuboidShape(5, 0, 2, 11, 2, 14);
     private static final VoxelShape SHAPE_X = Block.createCuboidShape(2, 0, 5, 14, 2, 11);

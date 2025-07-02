@@ -146,7 +146,7 @@ public class SawTableBlockEntity extends BlockEntity implements ExtendedScreenHa
         this.selected = selected;
     }
 
-    public void tick(World world1, BlockPos pos, BlockState state) {
+    public void tick(World world, BlockPos pos, BlockState state) {
         if (hasRecipe()) {
             tryToCraftItem();
         } else {

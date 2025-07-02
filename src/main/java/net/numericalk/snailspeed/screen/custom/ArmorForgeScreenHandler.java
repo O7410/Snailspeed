@@ -15,52 +15,50 @@ import net.numericalk.snailspeed.screen.SnailScreenHandlers;
 import java.util.Objects;
 
 public class ArmorForgeScreenHandler extends ScreenHandler {
-    private final Inventory inv;
-    private final ArmorForgeBlockEntity be;
+    private final Inventory inventory;
+    private final ArmorForgeBlockEntity blockEntity;
     private final BlockPos pos;
 
     public ArmorForgeScreenHandler(int syncId, PlayerInventory inventory, BlockPos pos) {
         this(syncId, inventory, Objects.requireNonNull(inventory.player.getWorld().getBlockEntity(pos)));
     }
-    public BlockPos getBlockPos() {
-        return pos;
-    }
+
     public ArmorForgeScreenHandler(int syncId, PlayerInventory playerInventory,
                                    BlockEntity blockEntity) {
         super(SnailScreenHandlers.ARMOR_FORGE_SCREEN_HANDLER, syncId);
-        this.inv = ((Inventory) blockEntity);
+        this.inventory = ((Inventory) blockEntity);
         this.pos = blockEntity.getPos();
-        this.be = ((ArmorForgeBlockEntity) blockEntity);
+        this.blockEntity = ((ArmorForgeBlockEntity) blockEntity);
 
-        this.addSlot(new Slot(inv, ArmorForgeBlockEntity.PLATE_SLOT, 80, 7) {
+        this.addSlot(new Slot(inventory, ArmorForgeBlockEntity.PLATE_SLOT, 80, 7) {
             @Override
             public boolean canInsert(ItemStack stack) {
                 return stack.isIn(SnailItemTagsProvider.PLATES);
             }
         });
-        this.addSlot(new Slot(inv, ArmorForgeBlockEntity.BINDING_SLOT, 53, 34) {
+        this.addSlot(new Slot(inventory, ArmorForgeBlockEntity.BINDING_SLOT, 53, 34) {
             @Override
             public boolean canInsert(ItemStack stack) {
                 return stack.isIn(SnailItemTagsProvider.BINDERS);
             }
         });
-        this.addSlot(new Slot(inv, ArmorForgeBlockEntity.FASTENER_SLOT, 107, 34) {
+        this.addSlot(new Slot(inventory, ArmorForgeBlockEntity.FASTENER_SLOT, 107, 34) {
             @Override
             public boolean canInsert(ItemStack stack) {
                 return stack.isIn(SnailItemTagsProvider.FASTENERS);
             }
         });
-        this.addSlot(new Slot(inv, ArmorForgeBlockEntity.TOOL_SLOT, 80, 61) {
+        this.addSlot(new Slot(inventory, ArmorForgeBlockEntity.TOOL_SLOT, 80, 61) {
             @Override
             public boolean canInsert(ItemStack stack) {
                 return stack.isIn(SnailItemTagsProvider.HAMMERS);
             }
         });
-        this.addSlot(new Slot(inv, ArmorForgeBlockEntity.OUTPUT, 80, 34) {
+        this.addSlot(new Slot(inventory, ArmorForgeBlockEntity.OUTPUT, 80, 34) {
             @Override
             public void onTakeItem(PlayerEntity player, ItemStack stack) {
-                be.decrementInput(player);
-                be.playForgingSound(player);
+                ArmorForgeScreenHandler.this.blockEntity.decrementInput(player);
+                ArmorForgeScreenHandler.this.blockEntity.playForgingSound(player);
             }
 
             @Override
@@ -78,6 +76,10 @@ public class ArmorForgeScreenHandler extends ScreenHandler {
         addPlayerHotbar(playerInventory);
     }
 
+    public BlockPos getBlockPos() {
+        return pos;
+    }
+
     @Override
     public ItemStack quickMove(PlayerEntity player, int invSlot) {
         ItemStack newStack = ItemStack.EMPTY;
@@ -87,20 +89,20 @@ public class ArmorForgeScreenHandler extends ScreenHandler {
             newStack = originalStack.copy();
 
             if (invSlot == ArmorForgeBlockEntity.OUTPUT) {
-                be.decrementInput(player);
-                be.playForgingSound(player);
+                blockEntity.decrementInput(player);
+                blockEntity.playForgingSound(player);
 
-                if (!this.insertItem(originalStack, this.inv.size(), this.slots.size(), true)) {
+                if (!this.insertItem(originalStack, this.inventory.size(), this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
 
                 slot.onQuickTransfer(originalStack, newStack);
-            } else if (invSlot < this.inv.size()) {
-                if (!this.insertItem(originalStack, this.inv.size(), this.slots.size(), true)) {
+            } else if (invSlot < this.inventory.size()) {
+                if (!this.insertItem(originalStack, this.inventory.size(), this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
             } else {
-                if (!this.insertItem(originalStack, 0, this.inv.size(), false)) {
+                if (!this.insertItem(originalStack, 0, this.inventory.size(), false)) {
                     return ItemStack.EMPTY;
                 }
             }
@@ -117,7 +119,7 @@ public class ArmorForgeScreenHandler extends ScreenHandler {
 
     @Override
     public boolean canUse(PlayerEntity player) {
-        return this.inv.canPlayerUse(player);
+        return this.inventory.canPlayerUse(player);
     }
 
     private void addPlayerInventory(PlayerInventory playerInventory) {

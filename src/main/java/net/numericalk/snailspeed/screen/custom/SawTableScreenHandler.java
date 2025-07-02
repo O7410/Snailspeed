@@ -21,11 +21,9 @@ public class SawTableScreenHandler extends ScreenHandler {
     public SawTableScreenHandler(int syncId, PlayerInventory inventory, BlockPos pos) {
         this(syncId, inventory, Objects.requireNonNull(inventory.player.getWorld().getBlockEntity(pos)));
     }
-    public BlockPos getBlockPos() {
-        return pos;
-    }
+
     public SawTableScreenHandler(int syncId, PlayerInventory playerInventory,
-                                   BlockEntity blockEntity) {
+                                 BlockEntity blockEntity) {
         super(SnailScreenHandlers.SAW_TABLE_SCREEN_HANDLER, syncId);
         this.inventory = ((Inventory) blockEntity);
         this.blockEntity = ((SawTableBlockEntity) blockEntity);
@@ -52,6 +50,10 @@ public class SawTableScreenHandler extends ScreenHandler {
 
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
+    }
+
+    public BlockPos getBlockPos() {
+        return pos;
     }
 
     @Override

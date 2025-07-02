@@ -38,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
 
-public class CampfireBlock extends BlockWithEntity implements BlockEntityProvider{
+public class CampfireBlock extends BlockWithEntity implements BlockEntityProvider {
 
     public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
 
@@ -254,12 +254,12 @@ public class CampfireBlock extends BlockWithEntity implements BlockEntityProvide
         return ActionResult.PASS;
     }
 
-    public boolean isSkyVisible(World world1, BlockPos pos) {
-        int worldHeight = world1.getHeight();
+    public boolean isSkyVisible(World world, BlockPos pos) {
+        int worldHeight = world.getHeight();
 
         for (int y = pos.getY() + 1; y < worldHeight; y++) {
             BlockPos abovePos = new BlockPos(pos.getX(), y, pos.getZ());
-            if (!world1.isAir(abovePos)) {
+            if (!world.isAir(abovePos)) {
                 return false;
             }
         }
@@ -276,8 +276,8 @@ public class CampfireBlock extends BlockWithEntity implements BlockEntityProvide
     }
 
     private void feedFire(World world, BlockPos pos, PlayerEntity player, ItemStack stack) {
-        BlockEntity be = world.getBlockEntity(pos);
-        if (be instanceof CampfireBlockEntity campfireBlockEntity) {
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof CampfireBlockEntity campfireBlockEntity) {
             campfireBlockEntity.calculateAddedFireTime();
         }
         if (!player.isCreative()) {
@@ -286,13 +286,12 @@ public class CampfireBlock extends BlockWithEntity implements BlockEntityProvide
     }
 
     private boolean canFeedFire(ItemStack stack, BlockState state, PlayerEntity player, BlockPos pos, World world) {
-        BlockEntity be = world.getBlockEntity(pos);
-        if (!(be instanceof CampfireBlockEntity campfireBE)) return false;
+        if (!(world.getBlockEntity(pos) instanceof CampfireBlockEntity campfireBlockEntity)) return false;
 
         return stack.isIn(SnailItemTagsProvider.CAMPFIRE_FUEL)
                 && state.get(LIT) >= LIT_SMALL
                 && !player.isSneaking()
-                && campfireBE.getFireDegradeTime() < campfireBE.getFireDegradeTimeLimit();
+                && campfireBlockEntity.getFireDegradeTime() < campfireBlockEntity.getFireDegradeTimeLimit();
     }
 
     private void litCampfireWith(SoundEvent soundEvent, ItemStack stack, PlayerEntity player, BlockState state, World world, BlockPos pos) {
@@ -300,7 +299,7 @@ public class CampfireBlock extends BlockWithEntity implements BlockEntityProvide
         world.playSound(player, pos, soundEvent, SoundCategory.BLOCKS, 1f, 1f);
         if (stack.isDamageable() && !player.isCreative()) {
             stack.damage(1, player);
-        }else if (!player.isCreative()) {
+        } else if (!player.isCreative()) {
             stack.decrement(1);
         }
     }

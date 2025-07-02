@@ -97,7 +97,7 @@ public class FilteringTrayBaseBlock extends Block {
             world.setBlockState(pos, state.cycle(STAGES));
             return ActionResult.SUCCESS;
         }
-        if (stack.isIn(SnailItemTagsProvider.STRING) && state.get(STAGES).equals(4)) {
+        if (stack.isIn(SnailItemTagsProvider.STRING) && state.get(STAGES) == 4) {
             if (!player.isCreative()) {
                 stack.decrement(1);
             }

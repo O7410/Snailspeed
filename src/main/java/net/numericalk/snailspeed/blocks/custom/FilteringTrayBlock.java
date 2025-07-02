@@ -54,17 +54,6 @@ public class FilteringTrayBlock extends BlockWithEntity implements BlockEntityPr
             Block.createCuboidShape(2, 14.25, 2, 14, 14.25, 14)
     ).reduce((v1, v2) -> VoxelShapes.combineAndSimplify(v1, v2, BooleanBiFunction.OR)).get();
 
-    @Override
-    protected void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if(state.getBlock() != newState.getBlock()) {
-            BlockEntity blockEntity = world.getBlockEntity(pos);
-            if(blockEntity instanceof FilteringTrayBlockEntity be) {
-                ItemScatterer.spawn(world, pos, be);
-                world.updateComparators(pos, this);
-            }
-            super.onStateReplaced(state, world, pos, newState, moved);
-        }
-    }
 
     public static final BooleanProperty HAS_FILTER = BooleanProperty.of("has_filter");
 
@@ -73,41 +62,55 @@ public class FilteringTrayBlock extends BlockWithEntity implements BlockEntityPr
     }
 
     @Override
+    protected MapCodec<? extends BlockWithEntity> getCodec() {
+        return CODEC;
+    }
+
+    @Override
+    protected void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        if (state.getBlock() != newState.getBlock()) {
+            if (world.getBlockEntity(pos) instanceof FilteringTrayBlockEntity blockEntity) {
+                ItemScatterer.spawn(world, pos, blockEntity);
+                world.updateComparators(pos, this);
+            }
+            super.onStateReplaced(state, world, pos, newState, moved);
+        }
+    }
+
+    @Override
     protected ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        BlockEntity be = world.getBlockEntity(pos);
-        if (be instanceof FilteringTrayBlockEntity filteringTrayBlockEntity) {
-            if (canInsertFilter(stack, state)) {
-                applyFilter(player, world, pos, stack, state, filteringTrayBlockEntity);
-                return ActionResult.SUCCESS;
-            } if (canTakeFilter(stack, state, filteringTrayBlockEntity)) {
-                takeFilter(player, world, pos, stack, state, filteringTrayBlockEntity);
+        if (!(world.getBlockEntity(pos) instanceof FilteringTrayBlockEntity filteringTrayBlockEntity)) return ActionResult.PASS;
+        if (canInsertFilter(stack, state)) {
+            applyFilter(player, world, pos, stack, state, filteringTrayBlockEntity);
+            return ActionResult.SUCCESS;
+        }
+        if (canTakeFilter(stack, state, filteringTrayBlockEntity)) {
+            takeFilter(player, world, pos, stack, state, filteringTrayBlockEntity);
+            return ActionResult.SUCCESS;
+        }
+        if (canInsertItem(stack, state)) {
+            for (int i = 0; i < 4; i++) {
+                if (!filteringTrayBlockEntity.getStack(i).isEmpty()) continue;
+                world.updateListeners(pos, state, state, 3);
+                filteringTrayBlockEntity.setStack(i, stack.copyWithCount(1));
+                if (!player.isCreative()) {
+                    stack.decrement(1);
+                }
+                world.playSound(player, pos, SoundEvents.ENTITY_ITEM_FRAME_ADD_ITEM, SoundCategory.BLOCKS, 1f, 1f);
                 return ActionResult.SUCCESS;
             }
-            if (canInsertItem(stack, state)) {
-                for (int i = 0; i < 4; i++) {
-                    if (filteringTrayBlockEntity.getStack(i).isEmpty()) {
-                        world.updateListeners(pos, state, state, 3);
-                        filteringTrayBlockEntity.setStack(i, stack.copyWithCount(1));
-                        if (!player.isCreative()) {
-                            stack.decrement(1);
-                        }
-                        world.playSound(player, pos, SoundEvents.ENTITY_ITEM_FRAME_ADD_ITEM, SoundCategory.BLOCKS, 1f, 1f);
-                        return ActionResult.SUCCESS;
-                    }
-                }
-                return ActionResult.SUCCESS;
-            } if (canTakeItem(stack, state)) {
-                for (int i = 3; i > -1; i--) {
-                    if (!filteringTrayBlockEntity.getStack(i).isEmpty()) {
-                        world.updateListeners(pos, state, state,  3);
-                        world.playSound(player, pos, SoundEvents.ENTITY_ITEM_FRAME_REMOVE_ITEM, SoundCategory.BLOCKS, 1f, 1f);
-                        player.giveOrDropStack(filteringTrayBlockEntity.getStack(i));
-                        filteringTrayBlockEntity.setStack(i, SnailItems.AIR.getDefaultStack());
-                        return ActionResult.SUCCESS;
-                    }
-                }
+            return ActionResult.SUCCESS;
+        }
+        if (canTakeItem(stack, state)) {
+            for (int i = 3; i > -1; i--) {
+                if (filteringTrayBlockEntity.getStack(i).isEmpty()) continue;
+                world.updateListeners(pos, state, state,  3);
+                world.playSound(player, pos, SoundEvents.ENTITY_ITEM_FRAME_REMOVE_ITEM, SoundCategory.BLOCKS, 1f, 1f);
+                player.giveOrDropStack(filteringTrayBlockEntity.getStack(i));
+                filteringTrayBlockEntity.setStack(i, SnailItems.AIR.getDefaultStack());
                 return ActionResult.SUCCESS;
             }
+            return ActionResult.SUCCESS;
         }
         return ActionResult.PASS;
     }
@@ -150,12 +153,7 @@ public class FilteringTrayBlock extends BlockWithEntity implements BlockEntityPr
     }
 
     private boolean canInsertFilter(ItemStack stack, BlockState state) {
-        return stack.isIn(SnailItemTagsProvider.FILTERS) && state.get(HAS_FILTER).equals(false);
-    }
-
-    @Override
-    protected MapCodec<? extends BlockWithEntity> getCodec() {
-        return CODEC;
+        return stack.isIn(SnailItemTagsProvider.FILTERS) && !state.get(HAS_FILTER);
     }
 
     @Override
@@ -175,6 +173,7 @@ public class FilteringTrayBlock extends BlockWithEntity implements BlockEntityPr
         }
         return SHAPE_UNFILTERED;
     }
+
     @Override
     public @Nullable BlockState getPlacementState(ItemPlacementContext ctx) {
         return this.getDefaultState().with(HAS_FILTER, false);

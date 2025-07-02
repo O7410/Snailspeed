@@ -18,8 +18,6 @@ import net.numericalk.snailspeed.blocks.entity.SnailBlockEntities;
 import net.numericalk.snailspeed.blocks.entity.custom.DriedClayMoldBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
-import static net.numericalk.snailspeed.blocks.custom.ClayMoldBlock.MOLD_SHAPE;
-
 public class DriedClayMoldBlock extends BlockWithEntity implements BlockEntityProvider {
     public static final VoxelShape SHAPE = Block.createCuboidShape(0, 0, 0, 16, 2, 16);
     private static final MapCodec<DriedClayMoldBlock> CODEC = DriedClayMoldBlock.createCodec(DriedClayMoldBlock::new);
@@ -60,7 +58,7 @@ public class DriedClayMoldBlock extends BlockWithEntity implements BlockEntityPr
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(MOLD_SHAPE);
+        builder.add(ClayMoldBlock.MOLD_SHAPE);
     }
 
     @Override

@@ -17,9 +17,14 @@ import net.numericalk.snailspeed.blocks.entity.SnailBlockEntities;
 import org.jetbrains.annotations.Nullable;
 
 public class ClayCrucibleBlockEntity extends BlockEntity {
+
+    private static final int MAX_DRY_TIME = 20 * 60 * 3;
+    private int dryTimeRemaining = 0;
+
     public ClayCrucibleBlockEntity(BlockPos pos, BlockState state) {
         super(SnailBlockEntities.CLAY_CRUCIBLE, pos, state);
     }
+
     @Override
     protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         super.writeNbt(nbt, registryLookup);
@@ -31,6 +36,7 @@ public class ClayCrucibleBlockEntity extends BlockEntity {
         super.readNbt(nbt, registryLookup);
         dryTimeRemaining = nbt.getInt("DryTimeRemaining");
     }
+
     @Nullable
     @Override
     public Packet<ClientPlayPacketListener> toUpdatePacket() {
@@ -41,36 +47,34 @@ public class ClayCrucibleBlockEntity extends BlockEntity {
     public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
         return createNbt(registryLookup);
     }
-    private int dryTimeRemaining = 0;
-    private final int maxDryTime = 20 * 60 * 3;
 
-    public void tick(World world1, BlockPos pos, BlockState state) {
+    public void tick(World world, BlockPos pos, BlockState state) {
         if (isClayCrucible(state)) {
-            if (!isRaining(world1) && hasDaylight(world1, pos) && world1.isDay()) {
+            if (!isRaining(world) && hasDaylight(world, pos) && world.isDay()) {
                 if (hasProgressComplete()) {
-                    dryClayCrucible(world1, pos, state);
+                    dryClayCrucible(world, pos, state);
                 }
                 increaseProgress();
-                spawnSmokeParticle(world1, pos);
-            } else if (!hasDaylight(world1, pos)) {
+                spawnSmokeParticle(world, pos);
+            } else if (!hasDaylight(world, pos)) {
                 pauseProgress();
-            } else if (isRaining(world1)) {
+            } else if (isRaining(world)) {
                 resetProgress();
             }
         } else {
             resetProgress();
         }
     }
-    private void spawnSmokeParticle(World world1, BlockPos pos) {
-        if (!world1.isClient) {
-            ((ServerWorld) world1).spawnParticles(
-                    ParticleTypes.WHITE_SMOKE,
-                    pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
-                    1,
-                    0.2, 0, 0.2,
-                    0.001
-            );
-        }
+
+    private void spawnSmokeParticle(World world, BlockPos pos) {
+        if (!(world instanceof ServerWorld serverWorld)) return;
+        serverWorld.spawnParticles(
+                ParticleTypes.WHITE_SMOKE,
+                pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
+                1,
+                0.2, 0, 0.2,
+                0.001
+        );
     }
 
     private void resetProgress() {
@@ -84,26 +88,26 @@ public class ClayCrucibleBlockEntity extends BlockEntity {
         dryTimeRemaining++;
     }
 
-    private void dryClayCrucible(World world1, BlockPos pos, BlockState state) {
-        if (world1.isClient()) {
+    private void dryClayCrucible(World world, BlockPos pos, BlockState state) {
+        if (world.isClient()) {
             return;
         }
-        world1.setBlockState(pos, SnailBlocks.DRIED_CLAY_CRUCIBLE.getStateWithProperties(state));
+        world.setBlockState(pos, SnailBlocks.DRIED_CLAY_CRUCIBLE.getStateWithProperties(state));
     }
 
     private boolean hasProgressComplete() {
-        return dryTimeRemaining >= maxDryTime;
+        return dryTimeRemaining >= MAX_DRY_TIME;
     }
 
-    private boolean hasDaylight(World world1, BlockPos pos) {
-        return world1.getLightLevel(LightType.SKY, pos.up()) == 15;
+    private boolean hasDaylight(World world, BlockPos pos) {
+        return world.getLightLevel(LightType.SKY, pos.up()) == 15;
     }
 
-    private boolean isRaining(World world1) {
-        return world1.isRaining() || world1.isThundering();
+    private boolean isRaining(World world) {
+        return world.isRaining() || world.isThundering();
     }
 
-    private boolean isClayCrucible(BlockState state1) {
-        return state1.isOf(SnailBlocks.CLAY_CRUCIBLE);
+    private boolean isClayCrucible(BlockState state) {
+        return state.isOf(SnailBlocks.CLAY_CRUCIBLE);
     }
 }

@@ -41,31 +41,30 @@ public class SnailLogStripping {
                 Block barkedWood = entry.barkedWood;
                 Block strippedWood = entry.strippedWood;
                 Item barkDrop = entry.barkDrop;
-                if (stack.isIn(ItemTags.AXES)) {
-                    if (state.isOf(barkedLog)) {
-                        if (world instanceof ServerWorld serverWorld) {
-                            ItemStack drop = new ItemStack(barkDrop, 1);
-                            Block.dropStack(serverWorld, pos, drop);
-                            world.setBlockState(pos, strippedLog.getStateWithProperties(state));
-                            stack.damage(1, playerEntity, playerEntity.getPreferredEquipmentSlot(stack));
-                        }
-                        world.playSound(null, pos, SoundEvents.ITEM_AXE_STRIP, SoundCategory.BLOCKS, 1.0f, 1.0f);
-
-                        return ActionResult.SUCCESS;
+                if (!stack.isIn(ItemTags.AXES)) continue;
+                if (state.isOf(barkedLog)) {
+                    if (world instanceof ServerWorld serverWorld) {
+                        ItemStack drop = new ItemStack(barkDrop, 1);
+                        Block.dropStack(serverWorld, pos, drop);
+                        world.setBlockState(pos, strippedLog.getStateWithProperties(state));
+                        stack.damage(1, playerEntity, playerEntity.getPreferredEquipmentSlot(stack));
                     }
-                    if (state.isOf(barkedWood)) {
-                        if (world instanceof ServerWorld serverWorld) {
-                            ItemStack drop = new ItemStack(barkDrop, 2);
-                            Block.dropStack(serverWorld, pos, drop);
-                            world.setBlockState(pos, strippedWood.getStateWithProperties(state));
-                            stack.damage(1, playerEntity, playerEntity.getPreferredEquipmentSlot(stack));
-                        }
-                        world.playSound(null, pos, SoundEvents.ITEM_AXE_STRIP, SoundCategory.BLOCKS, 1.0f, 1.0f);
+                    world.playSound(null, pos, SoundEvents.ITEM_AXE_STRIP, SoundCategory.BLOCKS, 1.0f, 1.0f);
 
-                        return ActionResult.SUCCESS;
-                    }
-                    return ActionResult.PASS;
+                    return ActionResult.SUCCESS;
                 }
+                if (state.isOf(barkedWood)) {
+                    if (world instanceof ServerWorld serverWorld) {
+                        ItemStack drop = new ItemStack(barkDrop, 2);
+                        Block.dropStack(serverWorld, pos, drop);
+                        world.setBlockState(pos, strippedWood.getStateWithProperties(state));
+                        stack.damage(1, playerEntity, playerEntity.getPreferredEquipmentSlot(stack));
+                    }
+                    world.playSound(null, pos, SoundEvents.ITEM_AXE_STRIP, SoundCategory.BLOCKS, 1.0f, 1.0f);
+
+                    return ActionResult.SUCCESS;
+                }
+                return ActionResult.PASS;
             }
             return ActionResult.PASS;
         });

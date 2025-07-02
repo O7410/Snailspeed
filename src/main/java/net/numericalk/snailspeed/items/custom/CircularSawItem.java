@@ -23,8 +23,8 @@ public class CircularSawItem extends Item {
         PlayerEntity player = context.getPlayer();
         World world = context.getWorld();
         BlockPos pos = context.getBlockPos();
-        BlockState state = context.getWorld().getBlockState(pos);
-        ItemStack stack = context.getPlayer().getMainHandStack();
+        BlockState state = world.getBlockState(pos);
+        ItemStack stack = player.getMainHandStack();
 
         if (state.isIn(BlockTags.WOODEN_SLABS)) {
             world.setBlockState(pos, SnailBlocks.SAW_TABLE.getDefaultState());

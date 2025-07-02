@@ -17,9 +17,6 @@ import net.minecraft.world.WorldView;
 import net.minecraft.world.block.WireOrientation;
 import org.jetbrains.annotations.Nullable;
 
-import static net.numericalk.snailspeed.blocks.custom.ClayMoldBlock.MOLD_ITEMS;
-import static net.numericalk.snailspeed.blocks.custom.ClayMoldBlock.MOLD_SHAPE;
-
 public class FiredClayMoldBlock extends HorizontalFacingBlock {
     public static final VoxelShape SHAPE = Block.createCuboidShape(0, 0, 0, 16, 2, 16);
     private static final MapCodec<FiredClayMoldBlock> CODEC = FiredClayMoldBlock.createCodec(FiredClayMoldBlock::new);
@@ -40,7 +37,7 @@ public class FiredClayMoldBlock extends HorizontalFacingBlock {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(MOLD_SHAPE);
+        builder.add(ClayMoldBlock.MOLD_SHAPE);
     }
 
     @Override
@@ -68,8 +65,8 @@ public class FiredClayMoldBlock extends HorizontalFacingBlock {
     @Override
     protected void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (state.getBlock() != newState.getBlock()) {
-            int moldShape = state.get(MOLD_SHAPE);
-            ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), MOLD_ITEMS[moldShape].getDefaultStack());
+            int moldShape = state.get(ClayMoldBlock.MOLD_SHAPE);
+            ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), ClayMoldBlock.MOLD_ITEMS[moldShape].getDefaultStack());
             world.updateComparators(pos, this);
             super.onStateReplaced(state, world, pos, newState, moved);
         }

@@ -25,8 +25,8 @@ public class SnailNetworkingBrain {
                     ArmorPiece selected = payload.armorPiece();
 
                     player.server.execute(() -> {
-                        if (player.getWorld().getBlockEntity(pos) instanceof ArmorForgeBlockEntity be) {
-                            be.setSelectedPiece(selected);
+                        if (player.getWorld().getBlockEntity(pos) instanceof ArmorForgeBlockEntity blockEntity) {
+                            blockEntity.setSelectedPiece(selected);
                         }
                     });
                 }
@@ -40,8 +40,8 @@ public class SnailNetworkingBrain {
                     SawCraftable selected = sawSelectRecipePayload.sawCraftable();
 
                     player.server.execute(() -> {
-                        if (player.getWorld().getBlockEntity(pos) instanceof SawTableBlockEntity be) {
-                            be.setSelectedPiece(selected);
+                        if (player.getWorld().getBlockEntity(pos) instanceof SawTableBlockEntity blockEntity) {
+                            blockEntity.setSelectedPiece(selected);
                         }
                     });
                 })

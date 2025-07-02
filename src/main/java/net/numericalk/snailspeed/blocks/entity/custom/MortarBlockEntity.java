@@ -40,6 +40,7 @@ public class MortarBlockEntity extends BlockEntity implements ImplementedInvento
         super.readNbt(nbt, registryLookup);
         Inventories.readNbt(nbt, inventory, registryLookup);
     }
+
     @Nullable
     @Override
     public Packet<ClientPlayPacketListener> toUpdatePacket() {
@@ -56,7 +57,7 @@ public class MortarBlockEntity extends BlockEntity implements ImplementedInvento
         super.markDirty();
     }
 
-    public void tick(World world1, BlockPos pos, BlockState state1) {
+    public void tick(World world, BlockPos pos, BlockState state) {
         if (this.getStack(0).isOf(SnailItems.AIR)) {
             this.setStack(0, ItemStack.EMPTY);
         }

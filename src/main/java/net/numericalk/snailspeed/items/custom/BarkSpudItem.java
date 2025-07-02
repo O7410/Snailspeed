@@ -14,17 +14,19 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.numericalk.snailspeed.blocks.SnailBlocks;
 
+import java.util.Map;
+
 public class BarkSpudItem extends Item {
+    private static final Map<Block, Block> LOG_TO_TAPPED_LOG = Map.ofEntries(
+            Map.entry(Blocks.SPRUCE_LOG, SnailBlocks.TAPPED_SPRUCE_LOG),
+            Map.entry(Blocks.BIRCH_LOG, SnailBlocks.TAPPED_BIRCH_LOG),
+            Map.entry(Blocks.PALE_OAK_LOG, SnailBlocks.TAPPED_PALE_OAK_LOG)
+    );
+
     //Bark Blud😂😂😂😂
     public BarkSpudItem(Settings settings) {
         super(settings);
     }
-
-    Block[][] tappedLog = {
-            {Blocks.SPRUCE_LOG, SnailBlocks.TAPPED_SPRUCE_LOG},
-            {Blocks.BIRCH_LOG, SnailBlocks.TAPPED_BIRCH_LOG},
-            {Blocks.PALE_OAK_LOG, SnailBlocks.TAPPED_PALE_OAK_LOG}
-    };
 
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
@@ -33,14 +35,11 @@ public class BarkSpudItem extends Item {
         World world = context.getWorld();
         ItemStack stack = context.getStack();
         PlayerEntity player = context.getPlayer();
-        for (Block[] blocks : tappedLog) {
-            if (state.isOf(blocks[0])) {
-                world.setBlockState(pos, blocks[1].getStateWithProperties(state));
-                world.playSound(player, pos, SoundEvents.ITEM_AXE_STRIP, SoundCategory.BLOCKS, 1f, 1f);
-                stack.damage(1, player);
-                return ActionResult.SUCCESS;
-            }
-        }
-        return ActionResult.PASS;
+        Block tappedLog = LOG_TO_TAPPED_LOG.get(state.getBlock());
+        if (tappedLog == null) return ActionResult.PASS;
+        world.setBlockState(pos, tappedLog.getStateWithProperties(state));
+        world.playSound(player, pos, SoundEvents.ITEM_AXE_STRIP, SoundCategory.BLOCKS, 1f, 1f);
+        stack.damage(1, player);
+        return ActionResult.SUCCESS;
     }
 }

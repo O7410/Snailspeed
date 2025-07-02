@@ -66,9 +66,9 @@ public class BrickFurnaceBlock extends BlockWithEntity implements BlockEntityPro
     @Override
     protected void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (state.getBlock() != newState.getBlock()) {
-            if (world.getBlockEntity(pos) instanceof BrickFurnaceBlockEntity be) {
-                if (!be.getStack(0).isIn(SnailItemTagsProvider.MOLTEN_ITEMS)) {
-                    ItemScatterer.spawn(world, pos, be);
+            if (world.getBlockEntity(pos) instanceof BrickFurnaceBlockEntity blockEntity) {
+                if (!blockEntity.getStack(0).isIn(SnailItemTagsProvider.MOLTEN_ITEMS)) {
+                    ItemScatterer.spawn(world, pos, blockEntity);
                 }
                 if (state.get(CRUCIBLE)) {
                     ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), SnailBlocks.CRUCIBLE.asItem().getDefaultStack());
@@ -229,7 +229,7 @@ public class BrickFurnaceBlock extends BlockWithEntity implements BlockEntityPro
     }
 
     private ActionResult castTool(World world, BlockPos pos, BlockState state, PlayerEntity player,
-                                       ItemStack stack, BrickFurnaceBlockEntity be,
+                                       ItemStack stack, BrickFurnaceBlockEntity blockEntity,
                                        SnailMoldType moldType, Item[][] recipe, Item[][] extraRecipe) {
         if (!stack.isOf(moldType.item)) return ActionResult.PASS;
 
@@ -241,9 +241,9 @@ public class BrickFurnaceBlock extends BlockWithEntity implements BlockEntityPro
 
             if (!moldType.canCastHighSmelting && (result.toString().contains("iron") || result.toString().contains("steel"))) continue;
 
-            if (be.getStack(0).isOf(input)) {
+            if (blockEntity.getStack(0).isOf(input)) {
                 player.giveOrDropStack(result.getDefaultStack());
-                be.setStack(0, SnailItems.AIR.getDefaultStack());
+                blockEntity.setStack(0, SnailItems.AIR.getDefaultStack());
                 matched = true;
                 break;
             }
@@ -256,9 +256,9 @@ public class BrickFurnaceBlock extends BlockWithEntity implements BlockEntityPro
 
                 if (!moldType.canCastHighSmelting && (result.toString().contains("iron") || result.toString().contains("steel"))) continue;
 
-                if (be.getStack(0).isOf(input)) {
+                if (blockEntity.getStack(0).isOf(input)) {
                     player.giveOrDropStack(result.getDefaultStack());
-                    be.setStack(0, SnailItems.AIR.getDefaultStack());
+                    blockEntity.setStack(0, SnailItems.AIR.getDefaultStack());
                     matched = true;
                     break;
                 }
@@ -271,7 +271,7 @@ public class BrickFurnaceBlock extends BlockWithEntity implements BlockEntityPro
             }
 
             for (int i = 1; i < 5; i++) {
-                be.setStack(i, SnailItems.AIR.getDefaultStack());
+                blockEntity.setStack(i, SnailItems.AIR.getDefaultStack());
             }
             world.updateListeners(pos, state, state, 3);
             world.playSound(player, pos, SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.BLOCKS, 1f, 1f);
@@ -282,27 +282,27 @@ public class BrickFurnaceBlock extends BlockWithEntity implements BlockEntityPro
     }
 
     private boolean canTakeLid(ItemStack stack, BlockState state) {
-        return stack.isEmpty() && state.get(LID).equals(true);
+        return stack.isEmpty() && state.get(LID);
     }
 
     private boolean canTakeCrucible(ItemStack stack, BlockState state) {
-        return stack.isEmpty() && state.get(CRUCIBLE).equals(true) && state.get(LID).equals(false);
+        return stack.isEmpty() && state.get(CRUCIBLE) && !state.get(LID);
     }
 
     private boolean canPutLid(ItemStack stack, BlockState state) {
-        return stack.isOf(SnailItems.FURNACE_LID) && state.get(LID).equals(false);
+        return stack.isOf(SnailItems.FURNACE_LID) && !state.get(LID);
     }
 
     private boolean canPutCrucible(ItemStack stack, BlockState state) {
-        return stack.isOf(SnailBlocks.CRUCIBLE.asItem()) && state.get(CRUCIBLE).equals(false) && state.get(LID).equals(false);
+        return stack.isOf(SnailBlocks.CRUCIBLE.asItem()) && !state.get(CRUCIBLE) && !state.get(LID);
     }
 
     private boolean canPutItem(ItemStack stack, BlockState state) {
-        return !stack.isEmpty() && state.get(CRUCIBLE).equals(true) && state.get(LID).equals(false);
+        return !stack.isEmpty() && state.get(CRUCIBLE) && !state.get(LID);
     }
 
     private boolean canTakeItem(ItemStack stack, BlockState state) {
-        return stack.isEmpty() && state.get(LID).equals(false);
+        return stack.isEmpty() && !state.get(LID);
     }
 
     private boolean isFuel(ItemStack stack) {
@@ -310,7 +310,7 @@ public class BrickFurnaceBlock extends BlockWithEntity implements BlockEntityPro
     }
 
     private boolean canLitFurnaceWith(Item item, ItemStack stack, BlockState state) {
-        return stack.isOf(item) && state.get(LIT).equals(1);
+        return stack.isOf(item) && state.get(LIT) == 1;
     }
 
     private void litFurnaceWith(SoundEvent soundEvent, ItemStack stack, PlayerEntity player, BlockState state, World world, BlockPos pos) {
@@ -334,9 +334,8 @@ public class BrickFurnaceBlock extends BlockWithEntity implements BlockEntityPro
     }
 
     private boolean canLitBlueFire(Item soul, ItemStack stack, BlockState state, World world, BlockPos pos) {
-        BlockEntity be = world.getBlockEntity(pos);
-        if (be instanceof BrickFurnaceBlockEntity brickFurnaceBlockEntity) {
-            return stack.isOf(soul) && state.get(LIT).equals(2) && (brickFurnaceBlockEntity.getFireTime() >= 20 * 60 * 3);
+        if (world.getBlockEntity(pos) instanceof BrickFurnaceBlockEntity brickFurnaceBlockEntity) {
+            return stack.isOf(soul) && state.get(LIT) == 2 && (brickFurnaceBlockEntity.getFireTime() >= 20 * 60 * 3);
         }
         return false;
     }

@@ -214,6 +214,7 @@ public class SnailItems {
     public static final Item ROUGH_RED_WOOL = register("rough_red_wool", Item::new);
     public static final Item ROUGH_BLACK_WOOL = register("rough_black_wool", Item::new);
 
+    // TODO: remove the custom air item
     public static final Item AIR = register("air", AirItem::new);
 
     private static Item register(String name, Function<Item.Settings, Item> function) {

@@ -24,7 +24,13 @@ import net.numericalk.snailspeed.datagen.SnailItemTagsProvider;
 import net.numericalk.snailspeed.items.SnailItems;
 import org.jetbrains.annotations.Nullable;
 
-public class BrickFurnaceBlockEntity extends BlockEntity implements ImplementedInventory{
+public class BrickFurnaceBlockEntity extends BlockEntity implements ImplementedInventory {
+    private static final float MAX_FIRE_TIME = 20 * 60 * 10;
+
+    private int progress = 0;
+    private int maxProgress;
+
+    public float fireTime;
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(6, ItemStack.EMPTY);
 
     public BrickFurnaceBlockEntity(BlockPos pos, BlockState state) {
@@ -47,18 +53,7 @@ public class BrickFurnaceBlockEntity extends BlockEntity implements ImplementedI
         progress = nbt.getInt("CookTime");
     }
 
-    private final int INPUT_1 = 0;
-    private final int INPUT_2 = 1;
-    private final int INPUT_3 = 2;
-    private final int INPUT_4 = 3;
-    private final int INPUT_5 = 4;
-
-    private int progress = 0;
-    private int maxProgress;
-
-    public float fireTime;
-    public float maxFireTime = 20 * 60 * 10;
-    public void tick(World world1, BlockPos pos, BlockState state) {
+    public void tick(World world, BlockPos pos, BlockState state) {
 
         for (int i = 0; i < 5; i++) {
             if (this.getStack(i).isOf(SnailItems.AIR)) {
@@ -70,66 +65,58 @@ public class BrickFurnaceBlockEntity extends BlockEntity implements ImplementedI
             decreaseFireTime();
             if (fireTime <= 0) {
                 fireTime = 0;
-                setLitState(0, world1, pos, state);
+                setLitState(0, world, pos, state);
                 this.getStack(5).decrement(1);
-            } else if (fireTime <= 20 * 60 * 3 && state.get(BrickFurnaceBlock.LIT).equals(3)) {
-                setLitState(2, world1, pos, state);
+            } else if (fireTime <= 20 * 60 * 3 && state.get(BrickFurnaceBlock.LIT) == 3) {
+                setLitState(2, world, pos, state);
             }
         } else if (hasFuel()) {
-            displayHasFuel(world1, pos, state);
+            displayHasFuel(world, pos, state);
             resetFireTime();
         }
         else {
             resetFireTime();
         }
 
-        if (state.get(BrickFurnaceBlock.LIT).equals(2)) {
+        if (state.get(BrickFurnaceBlock.LIT) == 2) {
             maxProgress = 20 * 60 * 3;
-            smeltItem(state, world1, pos, maxProgress);
-        } else if (state.get(BrickFurnaceBlock.LIT).equals(3)) {
+            smeltItem(state, world, pos, maxProgress);
+        } else if (state.get(BrickFurnaceBlock.LIT) == 3) {
             maxProgress = 20 * 60;
-            smeltItem(state, world1, pos, maxProgress);
+            smeltItem(state, world, pos, maxProgress);
         }
     }
 
-    private void smeltItem(BlockState state, World world1, BlockPos pos, int maxProgress) {
+    private void smeltItem(BlockState state, World world, BlockPos pos, int maxProgress) {
         boolean matchedRecipe = false;
 
-        for (Item[] items : smeltingRecipe) {
-            Item input1 = items[0];
-            Item input2 = items[1];
-            Item input3 = items[2];
-            Item input4 = items[3];
-            Item input5 = items[4];
+        recipeLoop:
+        for (Item[] items : SMELTING_RECIPES) {
             Item output = items[5];
-
-            if (getStack(INPUT_1).isOf(input1) &&
-                    getStack(INPUT_2).isOf(input2) &&
-                    getStack(INPUT_3).isOf(input3) &&
-                    getStack(INPUT_4).isOf(input4) &&
-                    getStack(INPUT_5).isOf(input5) &&
-                    state.get(BrickFurnaceBlock.LID)) {
-
-                matchedRecipe = true;
-                progress++;
-                spawnSmokeParticle(world1, pos, state);
-
-                if (progress >= maxProgress) {
-                    setStack(INPUT_1, new ItemStack(output));
-                    setStack(INPUT_2, new ItemStack(output));
-                    setStack(INPUT_3, new ItemStack(output));
-                    setStack(INPUT_4, new ItemStack(output));
-                    setStack(INPUT_5, new ItemStack(output));
-
-                    progress = 0;
-
-                    if (!world1.isClient) {
-                        markDirty();
-                        world1.updateListeners(pos, getCachedState(), getCachedState(), BrickFurnaceBlock.NOTIFY_ALL);
-                    }
+            for (int i = 0; i < 5; i++) {
+                if (!getStack(i).isOf(items[i])) {
+                    continue recipeLoop;
                 }
-                break;
             }
+            if (!state.get(BrickFurnaceBlock.LID)) continue;
+
+            matchedRecipe = true;
+            progress++;
+            spawnSmokeParticle(world, pos, state);
+
+            if (progress >= maxProgress) {
+                for (int i = 0; i < 5; i++) {
+                    setStack(i, new ItemStack(output));
+                }
+
+                progress = 0;
+
+                if (!world.isClient) {
+                    markDirty();
+                    world.updateListeners(pos, getCachedState(), getCachedState(), BrickFurnaceBlock.NOTIFY_ALL);
+                }
+            }
+            break;
         }
 
         if (!matchedRecipe) {
@@ -138,7 +125,7 @@ public class BrickFurnaceBlockEntity extends BlockEntity implements ImplementedI
     }
 
 
-    Item[][] smeltingRecipe ={
+    private static final Item[][] SMELTING_RECIPES = {
             {SnailItems.COPPER_NUGGET, SnailItems.COPPER_NUGGET, SnailItems.COPPER_NUGGET, SnailItems.COPPER_NUGGET, SnailItems.COPPER_NUGGET, SnailItems.MOLTEN_COPPER},
             {Items.IRON_NUGGET, Items.IRON_NUGGET, Items.IRON_NUGGET, Items.IRON_NUGGET, Items.IRON_NUGGET, SnailItems.MOLTEN_IRON},
             {Items.GOLD_NUGGET, Items.GOLD_NUGGET, Items.GOLD_NUGGET, Items.GOLD_NUGGET, Items.GOLD_NUGGET, SnailItems.MOLTEN_GOLD},
@@ -156,16 +143,15 @@ public class BrickFurnaceBlockEntity extends BlockEntity implements ImplementedI
             {SnailItems.STEEL_INGOT, Items.AIR, Items.AIR, Items.AIR, Items.AIR, SnailItems.MOLTEN_STEEL}
     };
 
-    private void spawnSmokeParticle(World world1, BlockPos pos, BlockState state) {
-        if (!world1.isClient) {
-            ((ServerWorld) world1).spawnParticles(
-                    ParticleTypes.SMOKE,
-                    pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
-                    1,
-                    0, 0.2, 0,
-                    0.01
-            );
-        }
+    private void spawnSmokeParticle(World world, BlockPos pos, BlockState state) {
+        if (!(world instanceof ServerWorld serverWorld)) return;
+        serverWorld.spawnParticles(
+                ParticleTypes.SMOKE,
+                pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
+                1,
+                0, 0.2, 0,
+                0.01
+        );
     }
 
     private void resetFireTime() {
@@ -176,12 +162,12 @@ public class BrickFurnaceBlockEntity extends BlockEntity implements ImplementedI
         }
     }
 
-    private void displayHasFuel(World world1, BlockPos pos, BlockState state) {
-        world1.setBlockState(pos, state.with(BrickFurnaceBlock.LIT, 1));
+    private void displayHasFuel(World world, BlockPos pos, BlockState state) {
+        world.setBlockState(pos, state.with(BrickFurnaceBlock.LIT, 1));
     }
 
-    private void setLitState(int lit, World world1, BlockPos pos, BlockState state) {
-        world1.setBlockState(pos, state.with(BrickFurnaceBlock.LIT, lit));
+    private void setLitState(int lit, World world, BlockPos pos, BlockState state) {
+        world.setBlockState(pos, state.with(BrickFurnaceBlock.LIT, lit));
     }
 
     private void decreaseFireTime() {
@@ -203,14 +189,14 @@ public class BrickFurnaceBlockEntity extends BlockEntity implements ImplementedI
 
     public void calculatedAddedFireTime(TagKey<Item> fuelType) {
         if (fuelType == SnailItemTagsProvider.CAMPFIRE_FUEL) {
-            fireTime += ((1200f/100f) * 50f);
+            fireTime += ((1200f / 100f) * 50f);
         } else if (fuelType == SnailItemTagsProvider.OVEN_FUEL) {
-            fireTime += ((2400f/100f) * 50f);
+            fireTime += ((2400f / 100f) * 50f);
         }
     }
 
     public float getMaxFireTime() {
-        return maxFireTime;
+        return MAX_FIRE_TIME;
     }
 
     public float getFireTime() {
@@ -222,6 +208,7 @@ public class BrickFurnaceBlockEntity extends BlockEntity implements ImplementedI
     public Packet<ClientPlayPacketListener> toUpdatePacket() {
         return BlockEntityUpdateS2CPacket.create(this);
     }
+
     @Override
     public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
         return createNbt(registryLookup);

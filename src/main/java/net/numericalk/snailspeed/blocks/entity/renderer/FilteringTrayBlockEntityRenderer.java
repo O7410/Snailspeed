@@ -17,30 +17,26 @@ public class FilteringTrayBlockEntityRenderer implements BlockEntityRenderer<Fil
     public FilteringTrayBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {
 
     }
+
     @Override
     public void render(FilteringTrayBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
-        ItemStack input1 = entity.getStack(0);
-        ItemStack input2 = entity.getStack(1);
-        ItemStack input3 = entity.getStack(2);
-        ItemStack input4 = entity.getStack(3);
-        renderStackWith(input1, 0.9f,  entity, matrices, itemRenderer, vertexConsumers);
-        renderStackWith(input2, 0.95f, entity, matrices, itemRenderer, vertexConsumers);
-        renderStackWith(input3, 1.0f, entity, matrices, itemRenderer, vertexConsumers);
-        renderStackWith(input4, 1.05f, entity, matrices, itemRenderer, vertexConsumers);
+        renderStackWith(entity.getStack(0), 0.9f,  entity, matrices, itemRenderer, vertexConsumers);
+        renderStackWith(entity.getStack(1), 0.95f, entity, matrices, itemRenderer, vertexConsumers);
+        renderStackWith(entity.getStack(2), 1.0f, entity, matrices, itemRenderer, vertexConsumers);
+        renderStackWith(entity.getStack(3), 1.05f, entity, matrices, itemRenderer, vertexConsumers);
     }
 
     private void renderStackWith(ItemStack input, float y, FilteringTrayBlockEntity entity, MatrixStack matrices, ItemRenderer itemRenderer, VertexConsumerProvider vertexConsumers) {
-        if (!input.isEmpty()) {
-            matrices.push();
-            matrices.translate(0.5f, y, 0.6f);
-            matrices.scale(1f, 1f, 1f);
-            matrices.multiply(RotationAxis.NEGATIVE_X.rotation((float) Math.PI / 2));
+        if (input.isEmpty()) return;
+        matrices.push();
+        matrices.translate(0.5f, y, 0.6f);
+        matrices.scale(1f, 1f, 1f);
+        matrices.multiply(RotationAxis.NEGATIVE_X.rotation((float) Math.PI / 2));
 
-            itemRenderer.renderItem(input, ModelTransformationMode.GROUND,
-                    Snailspeed.getLightLevel(entity.getWorld(), entity.getPos()),
-                    OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, entity.getWorld(), 1);
-            matrices.pop();
-        }
+        itemRenderer.renderItem(input, ModelTransformationMode.GROUND,
+                Snailspeed.getLightLevel(entity.getWorld(), entity.getPos()),
+                OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, entity.getWorld(), 1);
+        matrices.pop();
     }
 }

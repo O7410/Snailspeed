@@ -2,6 +2,7 @@ package net.numericalk.snailspeed.datagen;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalBlockTags;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.registry.RegistryKeys;
@@ -16,10 +17,6 @@ import java.util.concurrent.CompletableFuture;
 
 public class SnailBlockTagsProvider extends FabricTagProvider<Block> {
 
-    public SnailBlockTagsProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
-        super(output, RegistryKeys.BLOCK, registriesFuture);
-    }
-
     public static final TagKey<Block> TRIMMED_LOGS = TagKey.of(RegistryKeys.BLOCK, Identifier.of(Snailspeed.MOD_ID, "trimmed_logs"));
     public static final TagKey<Block> CRACKED_LOGS = TagKey.of(RegistryKeys.BLOCK, Identifier.of(Snailspeed.MOD_ID, "cracked_logs"));
     public static final TagKey<Block> DAMAGED_LOGS = TagKey.of(RegistryKeys.BLOCK, Identifier.of(Snailspeed.MOD_ID, "damaged_logs"));
@@ -28,8 +25,7 @@ public class SnailBlockTagsProvider extends FabricTagProvider<Block> {
 
     public static final TagKey<Block> TAPPED_LOGS = TagKey.of(RegistryKeys.BLOCK, Identifier.of(Snailspeed.MOD_ID, "tapped_logs"));
 
-    public static final TagKey<Block> STRIPPED_LOGS = TagKey.of(RegistryKeys.BLOCK, Identifier.of(Snailspeed.MOD_ID, "stripped_logs"));
-    public static final TagKey<Block> UNSTRIPPED_LOGS = TagKey.of(RegistryKeys.BLOCK, Identifier.of(Snailspeed.MOD_ID, "unstripped_logs"));
+    public static final TagKey<Block> STRIPPED_LOGS_AND_WOODS = TagKey.of(RegistryKeys.BLOCK, Identifier.of(Snailspeed.MOD_ID, "stripped_logs_and_woods"));
 
     public static final TagKey<Block> STONE_BLOCK = TagKey.of(RegistryKeys.BLOCK, Identifier.of(Snailspeed.MOD_ID, "stone_block"));
     public static final TagKey<Block> STONE_BLOCK_VARIANTS = TagKey.of(RegistryKeys.BLOCK, Identifier.of(Snailspeed.MOD_ID, "stone_block_variants"));
@@ -40,6 +36,10 @@ public class SnailBlockTagsProvider extends FabricTagProvider<Block> {
 
     public static final TagKey<Block> NEEDS_BRONZE_TOOL = TagKey.of(RegistryKeys.BLOCK, Identifier.of(Snailspeed.MOD_ID, "needs_bronze_tool"));
     public static final TagKey<Block> INCORRECT_FOR_BRONZE_TOOL = TagKey.of(RegistryKeys.BLOCK, Identifier.of(Snailspeed.MOD_ID, "incorrect_for_bronze_tool"));
+
+    public SnailBlockTagsProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+        super(output, RegistryKeys.BLOCK, registriesFuture);
+    }
 
     @Override
     protected void configure(RegistryWrapper.WrapperLookup wrapperLookup) {
@@ -175,52 +175,9 @@ public class SnailBlockTagsProvider extends FabricTagProvider<Block> {
                 .add(SnailBlocks.CRUMBLED_STONE)
                 .add(SnailBlocks.CRUMBLED_DEEPSLATE);
 
-        getOrCreateTagBuilder(UNSTRIPPED_LOGS)
-                .add(Blocks.OAK_LOG)
-                .add(Blocks.OAK_WOOD)
-                .add(Blocks.SPRUCE_LOG)
-                .add(Blocks.SPRUCE_WOOD)
-                .add(Blocks.BIRCH_LOG)
-                .add(Blocks.BIRCH_WOOD)
-                .add(Blocks.JUNGLE_LOG)
-                .add(Blocks.JUNGLE_WOOD)
-                .add(Blocks.ACACIA_LOG)
-                .add(Blocks.ACACIA_WOOD)
-                .add(Blocks.DARK_OAK_LOG)
-                .add(Blocks.DARK_OAK_WOOD)
-                .add(Blocks.MANGROVE_LOG)
-                .add(Blocks.MANGROVE_WOOD)
-                .add(Blocks.CHERRY_LOG)
-                .add(Blocks.CHERRY_WOOD)
-                .add(Blocks.PALE_OAK_LOG)
-                .add(Blocks.PALE_OAK_WOOD)
-                .add(Blocks.CRIMSON_STEM)
-                .add(Blocks.CRIMSON_HYPHAE)
-                .add(Blocks.WARPED_STEM)
-                .add(Blocks.WARPED_HYPHAE);
-        getOrCreateTagBuilder(STRIPPED_LOGS)
-                .add(Blocks.STRIPPED_OAK_LOG)
-                .add(Blocks.STRIPPED_OAK_WOOD)
-                .add(Blocks.STRIPPED_SPRUCE_LOG)
-                .add(Blocks.STRIPPED_SPRUCE_WOOD)
-                .add(Blocks.STRIPPED_BIRCH_LOG)
-                .add(Blocks.STRIPPED_BIRCH_WOOD)
-                .add(Blocks.STRIPPED_JUNGLE_LOG)
-                .add(Blocks.STRIPPED_JUNGLE_WOOD)
-                .add(Blocks.STRIPPED_ACACIA_LOG)
-                .add(Blocks.STRIPPED_ACACIA_WOOD)
-                .add(Blocks.STRIPPED_DARK_OAK_LOG)
-                .add(Blocks.STRIPPED_DARK_OAK_WOOD)
-                .add(Blocks.STRIPPED_MANGROVE_LOG)
-                .add(Blocks.STRIPPED_MANGROVE_WOOD)
-                .add(Blocks.STRIPPED_CHERRY_LOG)
-                .add(Blocks.STRIPPED_CHERRY_WOOD)
-                .add(Blocks.STRIPPED_PALE_OAK_LOG)
-                .add(Blocks.STRIPPED_PALE_OAK_WOOD)
-                .add(Blocks.STRIPPED_CRIMSON_STEM)
-                .add(Blocks.STRIPPED_CRIMSON_HYPHAE)
-                .add(Blocks.STRIPPED_WARPED_STEM)
-                .add(Blocks.STRIPPED_WARPED_HYPHAE);
+        getOrCreateTagBuilder(STRIPPED_LOGS_AND_WOODS)
+                .forceAddTag(ConventionalBlockTags.STRIPPED_LOGS)
+                .forceAddTag(ConventionalBlockTags.STRIPPED_WOODS);
 
         getOrCreateTagBuilder(TRIMMED_LOGS)
                 .add(SnailBlocks.TRIMMED_OAK_LOG)

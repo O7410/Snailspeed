@@ -16,7 +16,9 @@ import net.numericalk.snailspeed.items.SnailItems;
 
 import java.util.Random;
 
-public class TinderItem extends Item{
+public class TinderItem extends Item {
+    private int burningTinderTime = 20 * 3;
+
     public TinderItem(Settings settings) {
         super(settings);
     }
@@ -39,22 +41,19 @@ public class TinderItem extends Item{
 
     @Override
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
-        if (user instanceof PlayerEntity player) {
-            Random random = new Random();
-            int randomNumber = random.nextInt(1, 3);
-            if (randomNumber == 1) {
-                if (player.getOffHandStack().isOf(Items.STICK) && stack.isOf(SnailItems.TINDER)) {
-                    if (!world.isClient) {
-                        player.setStackInHand(Hand.MAIN_HAND, SnailItems.BURNING_TINDER.getDefaultStack());
-                        world.playSound(null, player.getBlockPos(), SoundEvents.ITEM_FLINTANDSTEEL_USE, SoundCategory.BLOCKS, 1f, 1f);
-                    }
-                }
-            }
+        if (!(user instanceof PlayerEntity player)) return stack;
+        if (world.isClient || !player.getOffHandStack().isOf(Items.STICK) || !stack.isOf(SnailItems.TINDER)) {
+            return stack;
         }
+        Random random = new Random();
+        int randomNumber = random.nextInt(1, 3);
+        if (randomNumber != 1) return stack;
+
+        player.setStackInHand(Hand.MAIN_HAND, SnailItems.BURNING_TINDER.getDefaultStack());
+        world.playSound(null, player.getBlockPos(), SoundEvents.ITEM_FLINTANDSTEEL_USE, SoundCategory.BLOCKS, 1f, 1f);
         return stack;
     }
 
-    private int burningTinderTime = 20 * 3;
 
     @Override
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
