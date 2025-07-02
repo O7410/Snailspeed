@@ -18,7 +18,6 @@ f4c4208b2fdc92c6a556ae6dfc098e13953ab969 data/snailspeed/tags/block/needs_bronze
 c1a253094cd3fb6309320a30807cfc952ffe0bc8 data/snailspeed/tags/block/ores.json
 07e3c229c9a3893a60c10ec3588d0157a46143f9 data/snailspeed/tags/block/stone_block.json
 36998c06864d3008c0909b89e005a57af7a600e5 data/snailspeed/tags/block/stone_block_variants.json
-dd15b2071a7bd8a37ffe713d989b3c555e2ef962 data/snailspeed/tags/block/stripped_logs.json
+1ad9bcaee054874deba7151b97a6be153eb301aa data/snailspeed/tags/block/stripped_logs_and_woods.json
 7ddb7e6d9c5b06da7873d10256923faa45578876 data/snailspeed/tags/block/tapped_logs.json
 331f79c27da803fa3bdcfe5c1e6a77ade600d35b data/snailspeed/tags/block/trimmed_logs.json
-90cdef6caaafcf8b40bdf138e4a80af76949c2c0 data/snailspeed/tags/block/unstripped_logs.json

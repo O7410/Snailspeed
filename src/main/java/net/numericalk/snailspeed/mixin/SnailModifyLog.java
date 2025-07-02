@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Map;
@@ -16,7 +17,11 @@ import java.util.function.Function;
 
 @Mixin(Blocks.class)
 public class SnailModifyLog {
-    @Unique private static final Map<String, FloatFloatPair> BLOCK_STRENGTHS = Map.ofEntries(
+    @Unique private static Map<String, FloatFloatPair> BLOCK_STRENGTHS;
+
+    @Inject(method = "<clinit>", at = @At("HEAD"))
+    private static void createBlockStrengthMap(CallbackInfo ci) {
+        BLOCK_STRENGTHS = Map.ofEntries(
             entry("oak_wood", 6.0f),
             entry("spruce_wood", 6.0f),
             entry("birch_wood", 6.0f),
@@ -86,7 +91,8 @@ public class SnailModifyLog {
             entry("deepslate_diamond_ore", 7.5f, 3.0f),
             entry("deepslate", 7.0f, 6.0f),
             entry("cobbled_deepslate", 7.5f, 6.0f)
-    );
+        );
+    }
 
     @Unique
     private static Map.Entry<String, FloatFloatPair> entry(String block, float hardness, float resistance) {
